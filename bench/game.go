@@ -13,7 +13,7 @@ import (
 type Game struct {
 	Sprite   *ebiten.Image    // Image for bunnies
 	Bounds   *image.Rectangle // Physical window size
-	Bunnies  []*Bunny         // List of bunnies
+	Bunnies  []Bunny          // List of bunnies
 	Amount   *int             // How much to add
 	Metrics  *Metrics         // Current TPS, FPS, object count and plots
 	Colorful *bool            // Add some serious load
@@ -26,6 +26,7 @@ func NewGame(amount int, colorful bool) *Game {
 		Amount:   &amount,
 		Colorful: &colorful,
 		Bounds:   &image.Rectangle{},
+		Bunnies:  make([]Bunny, 0, 100_000),
 	}
 
 	g.Metrics = NewMetrics(500*time.Millisecond, g.Bounds, g.Colorful, g.Amount)
@@ -51,8 +52,8 @@ func (g *Game) Update() error {
 		*g.Colorful = !*g.Colorful
 	}
 
-	for _, b := range g.Bunnies {
-		b.Update(*g.Bounds)
+	for i := 0; i < len(g.Bunnies); i++ {
+		g.Bunnies[i].Update(g.Sprite, *g.Bounds)
 	}
 
 	g.Metrics.Update(float64(len(g.Bunnies)))
@@ -63,8 +64,8 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(colornames.Whitesmoke)
 
-	for _, b := range g.Bunnies {
-		b.Draw(screen)
+	for i := 0; i < len(g.Bunnies); i++ {
+		g.Bunnies[i].Draw(screen, g.Sprite, *g.Colorful)
 	}
 
 	g.Metrics.Draw(screen)
@@ -79,12 +80,10 @@ func (g *Game) Layout(width, height int) (int, int) {
 func (g *Game) AddBunnies() {
 	for i := 0; i < *g.Amount; i++ {
 		b := NewBunny(
-			g.Sprite,
-			float64(len(g.Bunnies)%2),
-			RangeFloat(0, 2*math.Pi),
-			g.Colorful,
+			float32(len(g.Bunnies)%2),
+			float32(RangeFloat(0, 2*math.Pi)),
 		)
 
-		g.Bunnies = append(g.Bunnies, b)
+		g.Bunnies = append(g.Bunnies, *b)
 	}
 }

@@ -6,34 +6,32 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const (
+	gravity = 0.00095
+)
+
 type Bunny struct {
-	Sprite     *ebiten.Image
-	Colorful   *bool
-	Hue        float64
-	Gravity    float64
-	PosX, PosY float64
-	VelX, VelY float64
+	Hue        float32
+	PosX, PosY float32
+	VelX, VelY float32
 }
 
-func NewBunny(sprite *ebiten.Image, shift, hue float64, colorful *bool) *Bunny {
+func NewBunny(shift, hue float32) *Bunny {
 	return &Bunny{
-		Sprite:   sprite,
-		Colorful: colorful,
-		Hue:      hue,
-		PosX:     shift,
-		Gravity:  0.00095,
-		VelX:     RangeFloat(0, 0.005),
-		VelY:     RangeFloat(0.0025, 0.005),
+		Hue:  hue,
+		PosX: shift,
+		VelX: float32(RangeFloat(0, 0.005)),
+		VelY: float32(RangeFloat(0.0025, 0.005)),
 	}
 }
 
-func (b *Bunny) Update(bounds image.Rectangle) {
+func (b *Bunny) Update(sprite *ebiten.Image, bounds image.Rectangle) {
 	b.PosX += b.VelX
 	b.PosY += b.VelY
-	b.VelY += b.Gravity
+	b.VelY += gravity
 
-	sw, sh := float64(bounds.Dx()), float64(bounds.Dy())
-	iw, ih := float64(b.Sprite.Bounds().Dx()), float64(b.Sprite.Bounds().Dy())
+	sw, sh := float32(bounds.Dx()), float32(bounds.Dy())
+	iw, ih := float32(sprite.Bounds().Dx()), float32(sprite.Bounds().Dy())
 	relW, relH := iw/sw, ih/sh
 
 	if b.PosX+relW > 1 {
@@ -48,7 +46,7 @@ func (b *Bunny) Update(bounds image.Rectangle) {
 		b.VelY *= -0.85
 		b.PosY = 1 - relH
 		if Chance(0.5) {
-			b.VelY -= RangeFloat(0, 0.009)
+			b.VelY -= float32(RangeFloat(0, 0.009))
 		}
 	}
 	if b.PosY < 0 {
@@ -57,13 +55,13 @@ func (b *Bunny) Update(bounds image.Rectangle) {
 	}
 }
 
-func (b *Bunny) Draw(screen *ebiten.Image) {
-	sw, sh := float64(screen.Bounds().Dx()), float64(screen.Bounds().Dy())
+func (b *Bunny) Draw(screen *ebiten.Image, sprite *ebiten.Image, colorful bool) {
+	sw, sh := float32(screen.Bounds().Dx()), float32(screen.Bounds().Dy())
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(b.PosX*sw, b.PosY*sh)
-	if *b.Colorful {
-		op.ColorM.RotateHue(b.Hue)
+	op.GeoM.Translate(float64(b.PosX*sw), float64(b.PosY*sh))
+	if colorful {
+		op.ColorM.RotateHue(float64(b.Hue))
 	}
-	screen.DrawImage(b.Sprite, op)
+	screen.DrawImage(sprite, op)
 }
