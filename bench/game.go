@@ -2,7 +2,8 @@ package bench
 
 import (
 	"image"
-	"math"
+	"math/rand"
+
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -38,6 +39,10 @@ func NewGame(amount int, colorful bool) *Game {
 func (g *Game) Update() error {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		g.AddBunnies()
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyDelete) {
+		g.RemoveBunnies()
 	}
 
 	if ids := ebiten.AppendTouchIDs(nil); len(ids) > 0 {
@@ -81,9 +86,15 @@ func (g *Game) AddBunnies() {
 	for i := 0; i < *g.Amount; i++ {
 		b := NewBunny(
 			float32(len(g.Bunnies)%2),
-			float32(RangeFloat(0, 2*math.Pi)),
+			int32(rand.Intn(6)),
 		)
 
-		g.Bunnies = append(g.Bunnies, *b)
+		g.Bunnies = append(g.Bunnies, b)
+	}
+}
+
+func (g *Game) RemoveBunnies() {
+	if len(g.Bunnies) > 0 {
+		g.Bunnies = g.Bunnies[0 : len(g.Bunnies)-*g.Amount]
 	}
 }

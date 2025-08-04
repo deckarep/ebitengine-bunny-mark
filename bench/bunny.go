@@ -1,24 +1,26 @@
 package bench
 
 import (
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/colornames"
+	"image"
+	"image/color"
 )
 
 const (
-	gravity = 0.00095
+	gravity             = 0.00095
+	origR, origG, origB = 71.0 / 255.0, 255.0 / 255.0, 234 / 255.0
 )
 
 type Bunny struct {
-	Hue        float32
+	Hue        int32
 	PosX, PosY float32
 	VelX, VelY float32
 }
 
-func NewBunny(shift, hue float32) *Bunny {
-	return &Bunny{
-		Hue:  hue,
+func NewBunny(shift float32, hueIndex int32) Bunny {
+	return Bunny{
+		Hue:  hueIndex,
 		PosX: shift,
 		VelX: float32(RangeFloat(0, 0.005)),
 		VelY: float32(RangeFloat(0.0025, 0.005)),
@@ -56,12 +58,32 @@ func (b *Bunny) Update(sprite *ebiten.Image, bounds image.Rectangle) {
 }
 
 func (b *Bunny) Draw(screen *ebiten.Image, sprite *ebiten.Image, colorful bool) {
-	sw, sh := float32(screen.Bounds().Dx()), float32(screen.Bounds().Dy())
+	sb := screen.Bounds()
+	sw, sh := float32(sb.Dx()), float32(sb.Dy())
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(b.PosX*sw), float64(b.PosY*sh))
 	if colorful {
-		op.ColorM.RotateHue(float64(b.Hue))
+		var c color.Color
+		switch b.Hue {
+		case 0:
+			c = colornames.Blue
+		case 1:
+			c = colornames.Green
+		case 2:
+			c = colornames.Purple
+		case 3:
+			c = colornames.Yellow
+		default:
+
+			c = colornames.Red
+		}
+
+		_r, _g, _b, _ := c.RGBA()
+		op.ColorM.Scale(float64(_r), float64(_g), float64(_b), 1.0)
+		screen.DrawImage(sprite, op)
+	} else {
+		op.ColorM.Scale(origR, origG, origB, 1.0)
+		screen.DrawImage(sprite, op)
 	}
-	screen.DrawImage(sprite, op)
 }
