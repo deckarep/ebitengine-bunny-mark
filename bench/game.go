@@ -30,7 +30,7 @@ func NewGame(amount int, colorful bool) *Game {
 		Colorful:       &colorful,
 		ColorSelection: make([]color.Color, 0),
 		Bounds:         &image.Rectangle{},
-		Bunnies:        make([]Bunny, 0, 100_000),
+		Bunnies:        make([]Bunny, 0, 200_000),
 	}
 
 	g.Metrics = NewMetrics(500*time.Millisecond, g.Bounds, g.Colorful, g.Amount)
@@ -48,9 +48,12 @@ func NewGame(amount int, colorful bool) *Game {
 }
 
 func (g *Game) Update() error {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		g.AddBunnies()
 	}
+	//if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	//	g.AddBunnies()
+	//}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyDelete) {
 		g.RemoveBunnies()

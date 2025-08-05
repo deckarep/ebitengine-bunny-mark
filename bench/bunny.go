@@ -15,9 +15,11 @@ var (
 )
 
 type Bunny struct {
-	Hue        int32
-	PosX, PosY float32
-	VelX, VelY float32
+	Hue  int32
+	PosX float32
+	PosY float32
+	VelX float32
+	VelY float32
 }
 
 func NewBunny(shift float32, hueIndex int32) Bunny {
