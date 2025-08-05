@@ -1,8 +1,12 @@
 package bench
 
 import (
+	"fmt"
 	"image"
-	"math"
+	"image/color"
+	"math/rand"
+	"unsafe"
+
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,32 +15,49 @@ import (
 )
 
 type Game struct {
-	Sprite   *ebiten.Image    // Image for bunnies
-	Bounds   *image.Rectangle // Physical window size
-	Bunnies  []*Bunny         // List of bunnies
-	Amount   *int             // How much to add
-	Metrics  *Metrics         // Current TPS, FPS, object count and plots
-	Colorful *bool            // Add some serious load
-	Gpu      string           // Current gpu
+	Sprite         *ebiten.Image    // Image for bunnies
+	Bounds         *image.Rectangle // Physical window size
+	Bunnies        []Bunny          // List of bunnies
+	Amount         *int             // How much to add
+	Metrics        *Metrics         // Current TPS, FPS, object count and plots
+	Colorful       *bool            // Add some serious load
+	ColorSelection []color.Color
+	Gpu            string // Current gpu
 }
 
 func NewGame(amount int, colorful bool) *Game {
 	g := &Game{
-		Sprite:   LoadSprite(),
-		Amount:   &amount,
-		Colorful: &colorful,
-		Bounds:   &image.Rectangle{},
+		Sprite:         LoadSprite(),
+		Amount:         &amount,
+		Colorful:       &colorful,
+		ColorSelection: make([]color.Color, 0),
+		Bounds:         &image.Rectangle{},
+		Bunnies:        make([]Bunny, 0, 200_000),
 	}
 
 	g.Metrics = NewMetrics(500*time.Millisecond, g.Bounds, g.Colorful, g.Amount)
+
+	// Setup some colors.
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 243, G: 174, B: 250, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 184, G: 253, B: 150, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 240, G: 226, B: 131, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 245, G: 194, B: 165, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 209, G: 200, B: 251, A: 255})
+
 	g.AddBunnies()
+
+	fmt.Println("Bunny size: ", unsafe.Sizeof(Bunny{}))
 
 	return g
 }
 
 func (g *Game) Update() error {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		g.AddBunnies()
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyDelete) {
+		g.RemoveBunnies()
 	}
 
 	if ids := ebiten.AppendTouchIDs(nil); len(ids) > 0 {
@@ -51,8 +72,8 @@ func (g *Game) Update() error {
 		*g.Colorful = !*g.Colorful
 	}
 
-	for _, b := range g.Bunnies {
-		b.Update(*g.Bounds)
+	for i, n := 0, len(g.Bunnies); i < n; i++ {
+		g.Bunnies[i].Update(g.Sprite, *g.Bounds)
 	}
 
 	g.Metrics.Update(float64(len(g.Bunnies)))
@@ -63,8 +84,9 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(colornames.Whitesmoke)
 
-	for _, b := range g.Bunnies {
-		b.Draw(screen)
+	colorful := *g.Colorful
+	for i, n := 0, len(g.Bunnies); i < n; i++ {
+		g.Bunnies[i].Draw(screen, g.Sprite, colorful, g.ColorSelection)
 	}
 
 	g.Metrics.Draw(screen)
@@ -77,14 +99,19 @@ func (g *Game) Layout(width, height int) (int, int) {
 }
 
 func (g *Game) AddBunnies() {
+	numColors := len(g.ColorSelection)
+
 	for i := 0; i < *g.Amount; i++ {
 		b := NewBunny(
-			g.Sprite,
-			float64(len(g.Bunnies)%2),
-			RangeFloat(0, 2*math.Pi),
-			g.Colorful,
+			float32(len(g.Bunnies)%2),
+			int32(rand.Intn(numColors)),
 		)
-
 		g.Bunnies = append(g.Bunnies, b)
+	}
+}
+
+func (g *Game) RemoveBunnies() {
+	if len(g.Bunnies) > 0 {
+		g.Bunnies = g.Bunnies[0 : len(g.Bunnies)-*g.Amount]
 	}
 }

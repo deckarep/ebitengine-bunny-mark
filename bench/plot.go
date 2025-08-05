@@ -1,6 +1,7 @@
 package bench
 
 import (
+	"golang.org/x/image/colornames"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -36,9 +37,11 @@ func (p *Plot) Draw(screen *ebiten.Image, x, y, w, h float64) {
 	}
 	barW := w / float64(p.Bars)
 	for i := 0; i < p.Bars; i++ {
-		c := color.RGBA{R: 118, G: 222, B: 211, A: 255}
+		//c := color.RGBA{R: 118, G: 222, B: 211, A: 255}
+		c := colornames.Indianred
 		if i%2 == 0 {
-			c = color.RGBA{R: 106, G: 196, B: 186, A: 255}
+			//c = color.RGBA{R: 106, G: 196, B: 186, A: 255}
+			c = colornames.Darkred
 		}
 		height := 0.0
 		if i < len(p.Values) {

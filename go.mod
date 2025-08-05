@@ -1,26 +1,28 @@
 module github.com/sedyh/ebiten-bunny-mark
 
-go 1.17
+go 1.22.0
+
+toolchain go1.24.5
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.2.3
+	github.com/hajimehoshi/ebiten/v2 v2.8.8
 	github.com/jaypipes/ghw v0.8.0
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
+	golang.org/x/image v0.20.0
 )
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
+	github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325 // indirect
+	github.com/ebitengine/hideconsole v1.0.0 // indirect
+	github.com/ebitengine/purego v0.8.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/jaypipes/pcidb v0.6.0 // indirect
-	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
+	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.0.0 // indirect
 	github.com/pkg/errors v0.8.0 // indirect
-	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
-	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 	howett.net/plist v0.0.0-20181124034731-591f970eefbb // indirect
 )
