@@ -51,9 +51,6 @@ func (g *Game) Update() error {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		g.AddBunnies()
 	}
-	//if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-	//	g.AddBunnies()
-	//}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyDelete) {
 		g.RemoveBunnies()
@@ -71,7 +68,7 @@ func (g *Game) Update() error {
 		*g.Colorful = !*g.Colorful
 	}
 
-	for i := 0; i < len(g.Bunnies); i++ {
+	for i, n := 0, len(g.Bunnies); i < n; i++ {
 		g.Bunnies[i].Update(g.Sprite, *g.Bounds)
 	}
 
@@ -83,8 +80,9 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(colornames.Whitesmoke)
 
-	for i := 0; i < len(g.Bunnies); i++ {
-		g.Bunnies[i].Draw(screen, g.Sprite, *g.Colorful, g.ColorSelection)
+	colorful := *g.Colorful
+	for i, n := 0, len(g.Bunnies); i < n; i++ {
+		g.Bunnies[i].Draw(screen, g.Sprite, colorful, g.ColorSelection)
 	}
 
 	g.Metrics.Draw(screen)
