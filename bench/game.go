@@ -2,6 +2,7 @@ package bench
 
 import (
 	"image"
+	"image/color"
 	"math/rand"
 
 	"time"
@@ -12,25 +13,35 @@ import (
 )
 
 type Game struct {
-	Sprite   *ebiten.Image    // Image for bunnies
-	Bounds   *image.Rectangle // Physical window size
-	Bunnies  []Bunny          // List of bunnies
-	Amount   *int             // How much to add
-	Metrics  *Metrics         // Current TPS, FPS, object count and plots
-	Colorful *bool            // Add some serious load
-	Gpu      string           // Current gpu
+	Sprite         *ebiten.Image    // Image for bunnies
+	Bounds         *image.Rectangle // Physical window size
+	Bunnies        []Bunny          // List of bunnies
+	Amount         *int             // How much to add
+	Metrics        *Metrics         // Current TPS, FPS, object count and plots
+	Colorful       *bool            // Add some serious load
+	ColorSelection []color.Color
+	Gpu            string // Current gpu
 }
 
 func NewGame(amount int, colorful bool) *Game {
 	g := &Game{
-		Sprite:   LoadSprite(),
-		Amount:   &amount,
-		Colorful: &colorful,
-		Bounds:   &image.Rectangle{},
-		Bunnies:  make([]Bunny, 0, 100_000),
+		Sprite:         LoadSprite(),
+		Amount:         &amount,
+		Colorful:       &colorful,
+		ColorSelection: make([]color.Color, 0),
+		Bounds:         &image.Rectangle{},
+		Bunnies:        make([]Bunny, 0, 100_000),
 	}
 
 	g.Metrics = NewMetrics(500*time.Millisecond, g.Bounds, g.Colorful, g.Amount)
+
+	// Setup some colors.
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 243, G: 174, B: 250, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 184, G: 253, B: 150, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 240, G: 226, B: 131, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 245, G: 194, B: 165, A: 255})
+	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 209, G: 200, B: 251, A: 255})
+
 	g.AddBunnies()
 
 	return g
@@ -70,7 +81,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(colornames.Whitesmoke)
 
 	for i := 0; i < len(g.Bunnies); i++ {
-		g.Bunnies[i].Draw(screen, g.Sprite, *g.Colorful)
+		g.Bunnies[i].Draw(screen, g.Sprite, *g.Colorful, g.ColorSelection)
 	}
 
 	g.Metrics.Draw(screen)
@@ -83,12 +94,13 @@ func (g *Game) Layout(width, height int) (int, int) {
 }
 
 func (g *Game) AddBunnies() {
+	numColors := len(g.ColorSelection)
+
 	for i := 0; i < *g.Amount; i++ {
 		b := NewBunny(
 			float32(len(g.Bunnies)%2),
-			int32(rand.Intn(6)),
+			int32(rand.Intn(numColors)),
 		)
-
 		g.Bunnies = append(g.Bunnies, b)
 	}
 }

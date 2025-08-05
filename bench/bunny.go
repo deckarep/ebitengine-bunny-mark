@@ -2,14 +2,16 @@ package bench
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/colornames"
 	"image"
 	"image/color"
 )
 
 const (
-	gravity             = 0.00095
-	origR, origG, origB = 71.0 / 255.0, 255.0 / 255.0, 234 / 255.0
+	gravity = 0.00095
+)
+
+var (
+	gopherColor = color.RGBA{R: 71, G: 255, B: 234, A: 255}
 )
 
 type Bunny struct {
@@ -57,33 +59,17 @@ func (b *Bunny) Update(sprite *ebiten.Image, bounds image.Rectangle) {
 	}
 }
 
-func (b *Bunny) Draw(screen *ebiten.Image, sprite *ebiten.Image, colorful bool) {
+func (b *Bunny) Draw(screen *ebiten.Image, sprite *ebiten.Image, colorful bool, colorSelection []color.Color) {
 	sb := screen.Bounds()
 	sw, sh := float32(sb.Dx()), float32(sb.Dy())
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(b.PosX*sw), float64(b.PosY*sh))
 	if colorful {
-		var c color.Color
-		switch b.Hue {
-		case 0:
-			c = colornames.Blue
-		case 1:
-			c = colornames.Green
-		case 2:
-			c = colornames.Purple
-		case 3:
-			c = colornames.Yellow
-		default:
-
-			c = colornames.Red
-		}
-
-		_r, _g, _b, _ := c.RGBA()
-		op.ColorM.Scale(float64(_r), float64(_g), float64(_b), 1.0)
+		op.ColorScale.ScaleWithColor(colorSelection[b.Hue])
 		screen.DrawImage(sprite, op)
 	} else {
-		op.ColorM.Scale(origR, origG, origB, 1.0)
+		op.ColorScale.ScaleWithColor(gopherColor)
 		screen.DrawImage(sprite, op)
 	}
 }
