@@ -1,9 +1,11 @@
 package bench
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"math/rand"
+	"unsafe"
 
 	"time"
 
@@ -43,6 +45,8 @@ func NewGame(amount int, colorful bool) *Game {
 	g.ColorSelection = append(g.ColorSelection, color.RGBA{R: 209, G: 200, B: 251, A: 255})
 
 	g.AddBunnies()
+
+	fmt.Println("Bunny size: ", unsafe.Sizeof(Bunny{}))
 
 	return g
 }
